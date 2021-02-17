@@ -1,14 +1,16 @@
-FROM debian:10-slim
+FROM python:3-alpine
 
-RUN apt update
-RUN apt install -y --no-install-recommends python3-dev python3-pip
-RUN pip3 install -U pip
-
-RUN pip3 install cobs_index
-
+RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
-COPY requirements.txt ./
-RUN pip3 install -r requirements.txt
-COPY . .
 
-CMD ["uvicorn", "server:app", "--reload", "--host", "0.0.0.0"]
+COPY requirements.txt /usr/src/app/
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY . /usr/src/app
+
+EXPOSE 8080
+
+ENTRYPOINT ["python3"]
+
+CMD ["-m", "openapi_server"]

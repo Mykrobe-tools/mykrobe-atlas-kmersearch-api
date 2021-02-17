@@ -1,0 +1,53 @@
+openapi: 3.0.1
+info:
+  title: K-mer Search API
+  version: 1.0.0
+paths:
+  /search:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchQuery'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+      tags:
+        - search
+components:
+  schemas:
+    SearchQuery:
+      type: object
+      properties:
+        seq:
+          type: string
+        threshold:
+          type: number
+    SearchResults:
+      type: object
+      properties:
+        query:
+          type: string
+        threshold:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+    SearchResult:
+      type: object
+      properties:
+        percent_kmers_found:
+          type: number
+        num_kmers_found:
+          type: integer
+        num_kmers:
+          type: integer
+        sample_name:
+          type: string

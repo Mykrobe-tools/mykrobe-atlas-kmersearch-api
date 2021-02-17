@@ -1,0 +1,77 @@
+openapi: 3.0.1
+info:
+  title: K-mer Search API
+  version: 1.0.0
+servers:
+- url: /
+paths:
+  /search:
+    post:
+      operationId: search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchQuery'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+          description: OK
+      tags:
+      - search
+      x-openapi-router-controller: openapi_server.controllers.search_controller
+components:
+  schemas:
+    SearchQuery:
+      example:
+        threshold: 0.8008281904610115
+        seq: seq
+      properties:
+        seq:
+          type: string
+        threshold:
+          type: number
+      type: object
+    SearchResults:
+      example:
+        query: query
+        threshold: 0.8008281904610115
+        results:
+        - num_kmers: 5
+          percent_kmers_found: 6.027456183070403
+          num_kmers_found: 1
+          sample_name: sample_name
+        - num_kmers: 5
+          percent_kmers_found: 6.027456183070403
+          num_kmers_found: 1
+          sample_name: sample_name
+      properties:
+        query:
+          type: string
+        threshold:
+          type: number
+        results:
+          items:
+            $ref: '#/components/schemas/SearchResult'
+          type: array
+      type: object
+    SearchResult:
+      example:
+        num_kmers: 5
+        percent_kmers_found: 6.027456183070403
+        num_kmers_found: 1
+        sample_name: sample_name
+      properties:
+        percent_kmers_found:
+          type: number
+        num_kmers_found:
+          type: integer
+        num_kmers:
+          type: integer
+        sample_name:
+          type: string
+      type: object
