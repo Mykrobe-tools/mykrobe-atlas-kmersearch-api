@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
+from os import environ
 
 import connexion
 
 from openapi_server import encoder
+
+
+DEBUG = bool(int(environ.get('DEBUG', '0')))
 
 
 def main():
@@ -12,7 +16,7 @@ def main():
                 arguments={'title': 'K-mer Search API'},
                 pythonic_params=True)
 
-    app.run(port=8080)
+    app.run(port=8080, server='tornado' if not DEBUG else None, debug=DEBUG)
 
 
 if __name__ == '__main__':
