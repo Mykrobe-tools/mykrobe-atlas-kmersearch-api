@@ -1,5 +1,4 @@
 .dockerignore
-.gitignore
 openapi_server/__init__.py
 openapi_server/controllers/__init__.py
 openapi_server/controllers/security_controller_.py

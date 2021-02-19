@@ -1,3 +1,4 @@
+.gitignore
 .travis.yml
 Dockerfile
 git_push.sh
