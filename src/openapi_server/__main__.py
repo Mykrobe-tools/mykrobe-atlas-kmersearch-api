@@ -16,7 +16,7 @@ def main():
                 arguments={'title': 'K-mer Search API'},
                 pythonic_params=True)
 
-    app.run(port=8080, server='tornado' if not DEBUG else None, debug=DEBUG)
+    app.run(port=8000, server='tornado' if not DEBUG else None, debug=DEBUG)
 
 
 if __name__ == '__main__':

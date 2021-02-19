@@ -10,4 +10,4 @@ build:
 	docker build -t $(tag) src
 
 run:
-	docker run --rm -v $(shell pwd)/data:/data -it -p 8080:8080 $(tag)
+	docker run --rm -v $(shell pwd)/data:/data -it -p 8000:8000 $(tag)
