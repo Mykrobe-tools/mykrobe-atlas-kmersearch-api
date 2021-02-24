@@ -8,3 +8,4 @@ test-requirements.txt
 tox.ini
 openapi_server/controllers/search_controller.py
 openapi_server/__main__.py
+openapi_server/test/

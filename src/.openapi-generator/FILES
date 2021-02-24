@@ -9,7 +9,6 @@ openapi_server/models/search_query.py
 openapi_server/models/search_result.py
 openapi_server/models/search_results.py
 openapi_server/openapi/openapi.yaml
-openapi_server/test/__init__.py
 openapi_server/typing_utils.py
 openapi_server/util.py
 requirements.txt

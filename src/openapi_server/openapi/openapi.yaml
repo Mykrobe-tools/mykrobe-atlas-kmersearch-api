@@ -3,7 +3,7 @@ info:
   title: K-mer Search API
   version: 1.0.0
 servers:
-- url: /
+- url: http://kmersearch-api-service/api/v1
 paths:
   /search:
     post:
