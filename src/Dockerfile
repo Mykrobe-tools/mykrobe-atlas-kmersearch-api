@@ -2,9 +2,7 @@ FROM debian:10-slim
 
 RUN apt update
 RUN apt install -y --no-install-recommends python3-dev python3-pip
-
 RUN pip3 install -U pip
-RUN pip3 install --no-cache-dir cobs_index tornado
 
 WORKDIR /usr/src/app
 COPY requirements.txt ./
