@@ -20,6 +20,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResults'
+        400:
+          description: Bad request (i.e. query sequence is too short)
       tags:
         - search
 components:
