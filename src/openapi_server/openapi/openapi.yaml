@@ -32,6 +32,7 @@ components:
         seq: seq
       properties:
         seq:
+          minLength: 31
           type: string
         threshold:
           type: number

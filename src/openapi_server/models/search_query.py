@@ -65,6 +65,8 @@ class SearchQuery(Model):
         :param seq: The seq of this SearchQuery.
         :type seq: str
         """
+        if seq is not None and len(seq) < 31:
+            raise ValueError("Invalid value for `seq`, length must be greater than or equal to `31`")  # noqa: E501
 
         self._seq = seq
 

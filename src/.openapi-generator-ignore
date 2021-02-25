@@ -4,6 +4,7 @@ Dockerfile
 git_push.sh
 README.md
 setup.py
+requirements.txt
 test-requirements.txt
 tox.ini
 openapi_server/controllers/search_controller.py
