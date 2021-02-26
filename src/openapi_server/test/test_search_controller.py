@@ -1,0 +1,44 @@
+from math import ceil
+
+from hypothesis import given
+from hypothesis.strategies import lists, text
+
+from openapi_server.models import SearchResults
+from openapi_server.test.strategies import cobs_results, thresholds, seqs
+from wrappers.cobs import COBS_TERM_SIZE
+
+
+class CobsMock:
+    def __init__(self, mock_search_results=None):
+        self.mock_search_results = mock_search_results if mock_search_results else []
+
+    def search(self, _seq, _threshold):
+        return self.mock_search_results
+
+
+@given(seq=seqs(), threshold=thresholds(), mock_search_results=lists(elements=cobs_results()))
+def test_search(seq, threshold, mock_search_results, search, monkeypatch):
+    cobs_mock = CobsMock(mock_search_results)
+    monkeypatch.setattr('openapi_server.controllers.search_controller.cobs', cobs_mock)
+
+    response = search(seq, threshold)
+    assert response.status_code == 200
+
+    results = SearchResults.from_dict(response.json)
+    assert results.query == seq
+    assert results.threshold == threshold
+
+    for i, result in enumerate(results.results):
+        assert result.num_kmers == len(seq) - COBS_TERM_SIZE + 1
+        assert result.num_kmers_found == mock_search_results[i][0]
+        assert result.percent_kmers_found == result.num_kmers_found / result.num_kmers
+        assert result.sample_name == mock_search_results[i][1]
+
+
+@given(seq=text(max_size=COBS_TERM_SIZE-1), threshold=thresholds())
+def test_invalid_seq_lengths(seq, threshold, search, monkeypatch):
+    cobs_mock = CobsMock()
+    monkeypatch.setattr('openapi_server.controllers.search_controller.cobs', cobs_mock)
+
+    response = search(seq, threshold)
+    assert response.status_code == 400
