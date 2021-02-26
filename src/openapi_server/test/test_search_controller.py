@@ -29,7 +29,7 @@ def test_search(seq, threshold, mock_search_results, search, monkeypatch):
     assert results.threshold == threshold
 
     for i, result in enumerate(results.results):
-        assert result.num_kmers == ceil(len(seq) / COBS_TERM_SIZE)
+        assert result.num_kmers == len(seq) - COBS_TERM_SIZE + 1
         assert result.num_kmers_found == mock_search_results[i][0]
         assert result.percent_kmers_found == result.num_kmers_found / result.num_kmers
         assert result.sample_name == mock_search_results[i][1]
