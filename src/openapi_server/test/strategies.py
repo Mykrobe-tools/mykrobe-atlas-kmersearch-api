@@ -16,3 +16,13 @@ def thresholds(draw):
 @composite
 def seqs(draw):
     return draw(text(min_size=COBS_TERM_SIZE))
+
+
+@composite
+def bases(draw):
+    return draw(text())
+
+
+@composite
+def positions(draw):
+    return draw(integers())

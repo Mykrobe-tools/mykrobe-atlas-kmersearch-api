@@ -26,6 +26,25 @@ paths:
       tags:
       - search
       x-openapi-router-controller: openapi_server.controllers.search_controller
+  /variant_search:
+    post:
+      operationId: variant_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantSearchQuery'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariantSearchResults'
+          description: OK
+      tags:
+      - variant_search
+      x-openapi-router-controller: openapi_server.controllers.variant_search_controller
 components:
   schemas:
     SearchQuery:
@@ -38,6 +57,19 @@ components:
           type: string
         threshold:
           type: number
+      type: object
+    VariantSearchQuery:
+      example:
+        ref: ref
+        pos: 0
+        alt: alt
+      properties:
+        ref:
+          type: string
+        pos:
+          type: integer
+        alt:
+          type: string
       type: object
     SearchResults:
       example:
@@ -75,6 +107,32 @@ components:
           type: integer
         num_kmers:
           type: integer
+        sample_name:
+          type: string
+      type: object
+    VariantSearchResults:
+      example:
+        query: query
+        results:
+        - genotype: genotype
+          sample_name: sample_name
+        - genotype: genotype
+          sample_name: sample_name
+      properties:
+        query:
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/VariantSearchResult'
+          type: array
+      type: object
+    VariantSearchResult:
+      example:
+        genotype: genotype
+        sample_name: sample_name
+      properties:
+        genotype:
+          type: string
         sample_name:
           type: string
       type: object
