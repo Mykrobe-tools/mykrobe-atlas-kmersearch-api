@@ -1,11 +1,9 @@
-from math import ceil
-
 import connexion
 
+from openapi_server.db import get_cobs
 from openapi_server.models import SearchResult
 from openapi_server.models.search_query import SearchQuery  # noqa: E501
 from openapi_server.models.search_results import SearchResults  # noqa: E501
-from wrappers import cobs
 from wrappers.cobs import COBS_TERM_SIZE
 
 
@@ -22,7 +20,9 @@ def search_post(search_query=None):  # noqa: E501
     if connexion.request.is_json:
         search_query = SearchQuery.from_dict(connexion.request.get_json())  # noqa: E501
 
+    cobs = get_cobs()
     results = cobs.search(search_query.seq, search_query.threshold)
+
     num_kmers = len(search_query.seq) - COBS_TERM_SIZE + 1
 
     return SearchResults(

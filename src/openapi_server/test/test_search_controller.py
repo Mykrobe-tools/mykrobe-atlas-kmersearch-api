@@ -1,5 +1,3 @@
-from math import ceil
-
 from hypothesis import given
 from hypothesis.strategies import lists, text
 
@@ -18,8 +16,7 @@ class CobsMock:
 
 @given(seq=seqs(), threshold=thresholds(), mock_search_results=lists(elements=cobs_results()))
 def test_search(seq, threshold, mock_search_results, search, monkeypatch):
-    cobs_mock = CobsMock(mock_search_results)
-    monkeypatch.setattr('openapi_server.controllers.search_controller.cobs', cobs_mock)
+    monkeypatch.setattr('openapi_server.controllers.search_controller.get_cobs', lambda: CobsMock(mock_search_results))
 
     response = search(seq, threshold)
     assert response.status_code == 200
@@ -37,8 +34,7 @@ def test_search(seq, threshold, mock_search_results, search, monkeypatch):
 
 @given(seq=text(max_size=COBS_TERM_SIZE-1), threshold=thresholds())
 def test_invalid_seq_lengths(seq, threshold, search, monkeypatch):
-    cobs_mock = CobsMock()
-    monkeypatch.setattr('openapi_server.controllers.search_controller.cobs', cobs_mock)
+    monkeypatch.setattr('openapi_server.controllers.search_controller.get_cobs', lambda: CobsMock())
 
     response = search(seq, threshold)
     assert response.status_code == 400
