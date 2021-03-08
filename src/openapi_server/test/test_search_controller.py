@@ -15,7 +15,7 @@ class CobsMock:
 
 
 @given(seq=seqs(), threshold=thresholds(), mock_search_results=lists(elements=cobs_results()))
-def test_search(seq, threshold, mock_search_results, search, monkeypatch):
+def test_search_response(seq, threshold, mock_search_results, search, monkeypatch):
     monkeypatch.setattr('openapi_server.controllers.search_controller.get_cobs', lambda: CobsMock(mock_search_results))
 
     response = search(seq, threshold)

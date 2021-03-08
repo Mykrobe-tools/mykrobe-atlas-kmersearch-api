@@ -1,4 +1,3 @@
-import itertools
 import subprocess
 import tempfile
 from os import environ
@@ -49,7 +48,7 @@ class VariantSearch:
     def genotype_alleles(self, refs, alts):
         ref_alt_samples = self.search_for_alleles(refs, alts)
         results = []
-        for sample_name in set(itertools.chain.from_iterable(ref_alt_samples.values())):
+        for sample_name in ref_alt_samples['ref'].union(ref_alt_samples['alt']):
             if (
                 sample_name in ref_alt_samples["ref"]
                 and sample_name in ref_alt_samples["alt"]
@@ -62,11 +61,13 @@ class VariantSearch:
         return results
 
     def search_for_alleles(self, ref_seqs, alt_seqs):
-        results = {"ref": [], "alt": []}
+        results = {"ref": set(), "alt": set()}
         for ref in ref_seqs:
             res = self.cobs.search(ref, threshold=1)
-            results["ref"].extend([r[1] for r in res])
+            for _, sample_name in res:
+                results['ref'].add(sample_name)
         for alt in alt_seqs:
             res = self.cobs.search(alt, threshold=1)
-            results["alt"].extend([r[1] for r in res])
+            for _, sample_name in res:
+                results['alt'].add(sample_name)
         return results

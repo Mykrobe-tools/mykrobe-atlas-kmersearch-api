@@ -1,4 +1,4 @@
-from hypothesis.strategies import composite, integers, text, floats
+from hypothesis.strategies import composite, integers, text, floats, from_regex
 
 from wrappers.cobs import COBS_TERM_SIZE
 
@@ -19,10 +19,15 @@ def seqs(draw):
 
 
 @composite
-def bases(draw):
+def snps(draw):
     return draw(text())
 
 
 @composite
 def positions(draw):
     return draw(integers())
+
+
+@composite
+def fasta_strings(draw):
+    return draw(from_regex(r'^>')).encode()
