@@ -1,7 +1,7 @@
 from hypothesis import given
 from hypothesis.strategies import lists, sets, text
 
-from openapi_server.test.strategies import snps, positions, fasta_strings, cobs_results
+from test.strategies import snps, positions, fasta_strings, cobs_results
 from wrappers.variant_search import VariantSearch
 
 

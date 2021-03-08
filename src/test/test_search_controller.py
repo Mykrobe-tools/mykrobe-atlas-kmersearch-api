@@ -2,7 +2,7 @@ from hypothesis import given
 from hypothesis.strategies import lists, text
 
 from openapi_server.models import SearchResults
-from openapi_server.test.strategies import cobs_results, thresholds, seqs
+from test.strategies import cobs_results, thresholds, seqs
 from wrappers.cobs import COBS_TERM_SIZE
 
 
