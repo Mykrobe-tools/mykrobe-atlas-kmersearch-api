@@ -48,16 +48,12 @@ class VariantSearch:
     def genotype_alleles(self, refs, alts):
         ref_alt_samples = self.search_for_alleles(refs, alts)
         results = []
-        for sample_name in ref_alt_samples['ref'].union(ref_alt_samples['alt']):
-            if (
-                sample_name in ref_alt_samples["ref"]
-                and sample_name in ref_alt_samples["alt"]
-            ):
-                results.append({"sample_name": sample_name, "genotype": "0/1"})
-            elif sample_name in ref_alt_samples["ref"]:
-                results.append({"sample_name": sample_name, "genotype": "0/0"})
-            elif sample_name in ref_alt_samples["alt"]:
-                results.append({"sample_name": sample_name, "genotype": "1/1"})
+        results.extend([{"sample_name": sample_name, "genotype": "1/1"} for sample_name in
+                        ref_alt_samples["alt"].difference(ref_alt_samples["ref"])])
+        results.extend([{"sample_name": sample_name, "genotype": "0/0"} for sample_name in
+                        ref_alt_samples["ref"].difference(ref_alt_samples["alt"])])
+        results.extend([{"sample_name": sample_name, "genotype": "0/1"} for sample_name in
+                        ref_alt_samples["alt"].intersection(ref_alt_samples["ref"])])
         return results
 
     def search_for_alleles(self, ref_seqs, alt_seqs):
