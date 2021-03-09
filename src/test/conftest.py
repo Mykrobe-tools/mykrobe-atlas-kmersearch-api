@@ -40,5 +40,17 @@ def search(make_request):
     return _
 
 
+@fixture
+def variant_search(make_request):
+    def _(ref, pos, alt, *args, **kwargs):
+        return make_request(f'/api/v1/variant_search', 'POST', json={
+            'ref': ref,
+            'pos': pos,
+            'alt': alt,
+        }, *args, **kwargs)
+
+    return _
+
+
 settings.register_profile('default', suppress_health_check=(HealthCheck.function_scoped_fixture,))
 settings.load_profile('default')

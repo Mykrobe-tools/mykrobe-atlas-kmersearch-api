@@ -24,6 +24,23 @@ paths:
           description: Bad request (i.e. query sequence is too short)
       tags:
         - search
+  /variant_search:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantSearchQuery'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariantSearchResults'
+      tags:
+        - variant_search
 components:
   schemas:
     SearchQuery:
@@ -34,6 +51,15 @@ components:
           minLength: 31
         threshold:
           type: number
+    VariantSearchQuery:
+      type: object
+      properties:
+        ref:
+          type: string
+        pos:
+          type: integer
+        alt:
+          type: string
     SearchResults:
       type: object
       properties:
@@ -54,5 +80,21 @@ components:
           type: integer
         num_kmers:
           type: integer
+        sample_name:
+          type: string
+    VariantSearchResults:
+      type: object
+      properties:
+        query:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/VariantSearchResult'
+    VariantSearchResult:
+      type: object
+      properties:
+        genotype:
+          type: string
         sample_name:
           type: string

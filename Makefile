@@ -11,3 +11,6 @@ build:
 
 run:
 	docker run --rm -v $(shell pwd)/data:/data -it -p 8000:8000 $(tag)
+
+clean:
+	docker system prune -f --volumes
