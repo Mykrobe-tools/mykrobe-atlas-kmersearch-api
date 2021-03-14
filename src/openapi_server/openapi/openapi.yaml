@@ -62,13 +62,19 @@ components:
       example:
         ref: ref
         pos: 0
+        gene: gene
         alt: alt
+        genbank: genbank
       properties:
         ref:
           type: string
         pos:
           type: integer
         alt:
+          type: string
+        gene:
+          type: string
+        genbank:
           type: string
       type: object
     SearchResults:

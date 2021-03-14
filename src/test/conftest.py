@@ -42,12 +42,18 @@ def search(make_request):
 
 @fixture
 def variant_search(make_request):
-    def _(ref, pos, alt, *args, **kwargs):
-        return make_request(f'/api/v1/variant_search', 'POST', json={
+    def _(ref, pos, alt, gene=None, genbank=None, *args, **kwargs):
+        body = {
             'ref': ref,
             'pos': pos,
             'alt': alt,
-        }, *args, **kwargs)
+        }
+
+        if gene and genbank:
+            body['gene'] = gene
+            body['genbank'] = genbank
+
+        return make_request(f'/api/v1/variant_search', 'POST', json=body, *args, **kwargs)
 
     return _
 

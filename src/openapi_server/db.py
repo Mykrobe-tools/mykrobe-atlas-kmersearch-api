@@ -1,7 +1,8 @@
 from flask import g
 
+from wrappers.amino_acid_mutation_search import AminoAcidMutationSearch
 from wrappers.cobs import Cobs
-from wrappers.variant_search import VariantSearch
+from wrappers.variant_search import VariantSearch, TB_REF
 
 
 def get_cobs():
@@ -12,10 +13,17 @@ def get_cobs():
 
 
 def get_variant_searcher():
-    if 'vs' not in g:
-        g.vs = VariantSearch(get_cobs())
+    if 'variant_searcher' not in g:
+        g.variant_searcher = VariantSearch(get_cobs())
 
-    return g.vs
+    return g.variant_searcher
+
+
+def get_amino_acid_mutation_searcher(genbank_path, ref_path=TB_REF):
+    if 'amino_acid_mutation_searcher' not in g:
+        g.amino_acid_mutation_searcher = AminoAcidMutationSearch(get_cobs(), ref_path, genbank_path)
+
+    return g.amino_acid_mutation_searcher
 
 
 def close_db():
