@@ -60,6 +60,10 @@ components:
           type: integer
         alt:
           type: string
+        gene:
+          type: string
+        genbank:
+          type: string
     SearchResults:
       type: object
       properties:

@@ -25,7 +25,7 @@ class AminoAcidMutationSearch(VariantSearch):
                 var_name,
                 "-g",
                 self.genbank,
-                self.reference,
+                self.reference_path,
             ]
         )
         return fasta_string

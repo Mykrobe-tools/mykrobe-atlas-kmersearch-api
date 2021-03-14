@@ -15,7 +15,7 @@ class VariantSearchQuery(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, ref=None, pos=None, alt=None):  # noqa: E501
+    def __init__(self, ref=None, pos=None, alt=None, gene=None, genbank=None):  # noqa: E501
         """VariantSearchQuery - a model defined in OpenAPI
 
         :param ref: The ref of this VariantSearchQuery.  # noqa: E501
@@ -24,22 +24,32 @@ class VariantSearchQuery(Model):
         :type pos: int
         :param alt: The alt of this VariantSearchQuery.  # noqa: E501
         :type alt: str
+        :param gene: The gene of this VariantSearchQuery.  # noqa: E501
+        :type gene: str
+        :param genbank: The genbank of this VariantSearchQuery.  # noqa: E501
+        :type genbank: str
         """
         self.openapi_types = {
             'ref': str,
             'pos': int,
-            'alt': str
+            'alt': str,
+            'gene': str,
+            'genbank': str
         }
 
         self.attribute_map = {
             'ref': 'ref',
             'pos': 'pos',
-            'alt': 'alt'
+            'alt': 'alt',
+            'gene': 'gene',
+            'genbank': 'genbank'
         }
 
         self._ref = ref
         self._pos = pos
         self._alt = alt
+        self._gene = gene
+        self._genbank = genbank
 
     @classmethod
     def from_dict(cls, dikt) -> 'VariantSearchQuery':
@@ -114,3 +124,45 @@ class VariantSearchQuery(Model):
         """
 
         self._alt = alt
+
+    @property
+    def gene(self):
+        """Gets the gene of this VariantSearchQuery.
+
+
+        :return: The gene of this VariantSearchQuery.
+        :rtype: str
+        """
+        return self._gene
+
+    @gene.setter
+    def gene(self, gene):
+        """Sets the gene of this VariantSearchQuery.
+
+
+        :param gene: The gene of this VariantSearchQuery.
+        :type gene: str
+        """
+
+        self._gene = gene
+
+    @property
+    def genbank(self):
+        """Gets the genbank of this VariantSearchQuery.
+
+
+        :return: The genbank of this VariantSearchQuery.
+        :rtype: str
+        """
+        return self._genbank
+
+    @genbank.setter
+    def genbank(self, genbank):
+        """Sets the genbank of this VariantSearchQuery.
+
+
+        :param genbank: The genbank of this VariantSearchQuery.
+        :type genbank: str
+        """
+
+        self._genbank = genbank
