@@ -5,6 +5,25 @@ info:
 servers:
 - url: http://kmersearch-api-service/api/v1
 paths:
+  /build:
+    post:
+      operationId: build_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSamples'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Samples'
+          description: OK
+      tags:
+      - build
+      x-openapi-router-controller: openapi_server.controllers.build_controller
   /search:
     post:
       operationId: search_post
@@ -140,5 +159,37 @@ components:
         genotype:
           type: string
         sample_name:
+          type: string
+      type: object
+    NewSamples:
+      example:
+        sample_names:
+        - sample_names
+        - sample_names
+        path_to_file_list: path_to_file_list
+      properties:
+        path_to_file_list:
+          type: string
+        sample_names:
+          items:
+            type: string
+          type: array
+      type: object
+    Samples:
+      example:
+        samples:
+        - name: name
+        - name: name
+      properties:
+        samples:
+          items:
+            $ref: '#/components/schemas/Sample'
+          type: array
+      type: object
+    Sample:
+      example:
+        name: name
+      properties:
+        name:
           type: string
       type: object

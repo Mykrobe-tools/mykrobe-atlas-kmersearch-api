@@ -58,5 +58,16 @@ def variant_search(make_request):
     return _
 
 
+@fixture
+def build(make_request):
+    def _(path_to_file_list, sample_names, *args, **kwargs):
+        return make_request(f'/api/v1/build', 'POST', json={
+            'path_to_file_list': path_to_file_list,
+            'sample_names': sample_names,
+        }, *args, **kwargs)
+
+    return _
+
+
 settings.register_profile('default', suppress_health_check=(HealthCheck.function_scoped_fixture,))
 settings.load_profile('default')
