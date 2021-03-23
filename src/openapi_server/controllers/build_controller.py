@@ -19,7 +19,7 @@ def build_post(new_samples=None):  # noqa: E501
     if connexion.request.is_json:
         new_samples = NewSamples.from_dict(connexion.request.get_json())  # noqa: E501
 
-    Cobs.build(new_samples.path_to_file_list, new_samples.sample_names)
+    Cobs.build(new_samples.sample_paths, new_samples.sample_names)
 
     return Samples([
         Sample(name=name) for name in new_samples.sample_names

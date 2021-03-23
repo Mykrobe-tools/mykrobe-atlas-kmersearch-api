@@ -15,25 +15,25 @@ class NewSamples(Model):
     Do not edit the class manually.
     """
 
-    def __init__(self, path_to_file_list=None, sample_names=None):  # noqa: E501
+    def __init__(self, sample_paths=None, sample_names=None):  # noqa: E501
         """NewSamples - a model defined in OpenAPI
 
-        :param path_to_file_list: The path_to_file_list of this NewSamples.  # noqa: E501
-        :type path_to_file_list: str
+        :param sample_paths: The sample_paths of this NewSamples.  # noqa: E501
+        :type sample_paths: List[str]
         :param sample_names: The sample_names of this NewSamples.  # noqa: E501
         :type sample_names: List[str]
         """
         self.openapi_types = {
-            'path_to_file_list': str,
+            'sample_paths': List[str],
             'sample_names': List[str]
         }
 
         self.attribute_map = {
-            'path_to_file_list': 'path_to_file_list',
+            'sample_paths': 'sample_paths',
             'sample_names': 'sample_names'
         }
 
-        self._path_to_file_list = path_to_file_list
+        self._sample_paths = sample_paths
         self._sample_names = sample_names
 
     @classmethod
@@ -48,25 +48,25 @@ class NewSamples(Model):
         return util.deserialize_model(dikt, cls)
 
     @property
-    def path_to_file_list(self):
-        """Gets the path_to_file_list of this NewSamples.
+    def sample_paths(self):
+        """Gets the sample_paths of this NewSamples.
 
 
-        :return: The path_to_file_list of this NewSamples.
-        :rtype: str
+        :return: The sample_paths of this NewSamples.
+        :rtype: List[str]
         """
-        return self._path_to_file_list
+        return self._sample_paths
 
-    @path_to_file_list.setter
-    def path_to_file_list(self, path_to_file_list):
-        """Sets the path_to_file_list of this NewSamples.
+    @sample_paths.setter
+    def sample_paths(self, sample_paths):
+        """Sets the sample_paths of this NewSamples.
 
 
-        :param path_to_file_list: The path_to_file_list of this NewSamples.
-        :type path_to_file_list: str
+        :param sample_paths: The sample_paths of this NewSamples.
+        :type sample_paths: List[str]
         """
 
-        self._path_to_file_list = path_to_file_list
+        self._sample_paths = sample_paths
 
     @property
     def sample_names(self):

@@ -60,9 +60,9 @@ def variant_search(make_request):
 
 @fixture
 def build(make_request):
-    def _(path_to_file_list, sample_names, *args, **kwargs):
+    def _(sample_paths, sample_names, *args, **kwargs):
         return make_request(f'/api/v1/build', 'POST', json={
-            'path_to_file_list': path_to_file_list,
+            'sample_paths': sample_paths,
             'sample_names': sample_names,
         }, *args, **kwargs)
 

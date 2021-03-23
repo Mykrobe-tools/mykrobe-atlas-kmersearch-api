@@ -24,13 +24,12 @@ class Cobs:
         return results
 
     @staticmethod
-    def build(path_to_file_list, sample_names):
+    def build(sample_paths, sample_names):
         with TemporaryDirectory() as tmpdir:
             doclist = cobs.DocumentList(tmpdir)
 
-            with open(path_to_file_list) as f:
-                for path in f:
-                    doclist.add(path.strip())
+            for path in sample_paths:
+                doclist.add(path.strip())
 
             for doc, name in zip(doclist, sample_names):
                 doc.name = name

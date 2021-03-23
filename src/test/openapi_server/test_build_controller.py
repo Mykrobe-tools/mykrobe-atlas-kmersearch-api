@@ -5,11 +5,11 @@ from openapi_server.models import Samples
 from test.strategies import sample_names
 
 
-@given(path_to_file_list=text(), sample_names=lists(sample_names()))
-def test_response(path_to_file_list, sample_names, build, monkeypatch):
+@given(sample_paths=lists(text()), sample_names=lists(sample_names()))
+def test_response(sample_paths, sample_names, build, monkeypatch):
     monkeypatch.setattr('openapi_server.controllers.build_controller.Cobs.build', lambda _x, _y: None)
 
-    response = build(path_to_file_list, sample_names)
+    response = build(sample_paths, sample_names)
 
     assert response.status_code == 200
 

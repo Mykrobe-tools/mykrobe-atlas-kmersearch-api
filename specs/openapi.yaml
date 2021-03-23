@@ -122,8 +122,10 @@ components:
     NewSamples:
       type: object
       properties:
-        path_to_file_list:
-          type: string
+        sample_paths:
+          type: array
+          items:
+            type: string
         sample_names:
           type: array
           items:

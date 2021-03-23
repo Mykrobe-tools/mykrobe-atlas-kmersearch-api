@@ -166,10 +166,14 @@ components:
         sample_names:
         - sample_names
         - sample_names
-        path_to_file_list: path_to_file_list
+        sample_paths:
+        - sample_paths
+        - sample_paths
       properties:
-        path_to_file_list:
-          type: string
+        sample_paths:
+          items:
+            type: string
+          type: array
         sample_names:
           items:
             type: string
