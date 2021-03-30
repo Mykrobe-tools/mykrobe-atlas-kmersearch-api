@@ -54,7 +54,7 @@ steps:
       - name: "ssh"
         path: /root/.ssh
 
-timeout: 900s
+timeout: 1800s
 
 substitutions:
   _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-kmersearch-api
