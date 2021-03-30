@@ -44,8 +44,8 @@ steps:
     args: ["build", "-t", "$_IMAGE_REPOSITORY:$SHORT_SHA", "./src"]
 
   # Run tests
-  - name: "gcr.io/cloud-builders/docker"
-    args: [ "run", "$_IMAGE_REPOSITORY:$SHORT_SHA", "-m pytest" ]
+  - name: "$_IMAGE_REPOSITORY:$SHORT_SHA"
+    args: ["-m", "pytest" ]
 
   # Push image
   - name: "gcr.io/cloud-builders/docker"
