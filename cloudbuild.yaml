@@ -39,21 +39,20 @@ steps:
       - name: "ssh"
         path: /root/.ssh
 
-  # Run tests
-  - name: 'python:3.8'
-    entrypoint: "bash"
-    args:
-      - "-c"
-      - 'pip install -r src/requirements.txt && pip install -r src/test-requirements.txt && pytest src'
-
-  # Build and push API image
+  # Build image
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "$_IMAGE_REPOSITORY:$SHORT_SHA", "./src"]
+
+  # Run tests
+  - name: "gcr.io/cloud-builders/docker"
+    args: [ "run", "$_IMAGE_REPOSITORY:$SHORT_SHA", "-m pytest" ]
+
+  # Push image
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "$_IMAGE_REPOSITORY:$SHORT_SHA"]
     volumes:
       - name: "ssh"
         path: /root/.ssh
-  - name: "gcr.io/cloud-builders/docker"
-    args: ["push", "$_IMAGE_REPOSITORY:$SHORT_SHA"]
 
 timeout: 900s
 
