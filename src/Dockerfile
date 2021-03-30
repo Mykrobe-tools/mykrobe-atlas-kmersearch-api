@@ -2,7 +2,7 @@ FROM debian:10-slim
 
 RUN apt update
 RUN apt install -y --no-install-recommends python3-dev python3-pip git wget build-essential cmake zlib1g-dev
-RUN pip3 install -U pip setuptools
+RUN pip3 install -U pip setuptools wheel
 
 # Install Mykrobe for variant search
 WORKDIR /usr/src
@@ -21,8 +21,9 @@ WORKDIR ..
 RUN pip install .
 
 WORKDIR /usr/src/app
-COPY requirements.txt ./
+COPY requirements.txt test-requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir -r test-requirements.txt
 COPY . .
 
 ENTRYPOINT ["python3"]
