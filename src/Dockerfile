@@ -14,7 +14,7 @@ RUN pip3 install .
 
 # Install COBS
 WORKDIR /usr/src
-RUN git clone --recursive --branch feature/expose-classic-combine https://github.com/iqbal-lab-org/cobs.git
+RUN git clone --recursive https://github.com/iqbal-lab-org/cobs.git
 WORKDIR cobs/build
 RUN cmake .. && make
 WORKDIR ..
