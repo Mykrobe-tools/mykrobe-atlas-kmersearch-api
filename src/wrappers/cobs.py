@@ -61,7 +61,11 @@ class Cobs:
             # Copy sample file to the group with the smallest signature size that is larger than its own
             for doc, name in zip(doclist, sample_names):
                 signature_size = cobs.calc_signature_size(doc.num_terms(COBS_TERM_SIZE), params.num_hashes, params.false_positive_rate)
-                for index_dir in Path(COBS_SAMPLE_DIR).iterdir():
+
+                sorted_subdirs = sorted([int(x.name) for x in Path(COBS_SAMPLE_DIR).iterdir()])
+                sorted_subdirs = [Path(COBS_SAMPLE_DIR) / str(x) for x in sorted_subdirs]
+
+                for index_dir in sorted_subdirs:
                     if index_dir.is_dir() and int(index_dir.name) > signature_size:
                         file_extension = doc.path.split('.')[-1]
                         new_sample_path = index_dir / (name + '.' + file_extension)
