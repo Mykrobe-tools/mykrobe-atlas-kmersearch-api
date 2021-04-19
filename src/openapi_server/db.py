@@ -6,10 +6,8 @@ from wrappers.variant_search import VariantSearch, TB_REF
 
 
 def get_cobs():
-    if 'cobs' not in g:
-        g.cobs = Cobs()
-
-    return g.cobs
+    # Not caching cobs since index paths could be changed at any time
+    return Cobs()
 
 
 def get_variant_searcher():

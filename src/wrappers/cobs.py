@@ -1,4 +1,3 @@
-import shutil
 import subprocess
 from datetime import datetime
 from os import environ
@@ -8,7 +7,6 @@ from tempfile import TemporaryDirectory
 import cobs_index as cobs
 
 COBS_CLASSIC_INDEXES_DIR = environ.get('COBS_CLASSIC_INDEXES_DIR', '/data/classic')
-COBS_SAMPLE_DIR = environ.get('COBS_SAMPLE_DIR', '/data/samples')
 COBS_CLASSIC_FILE_EXTENSION = 'cobs_classic'
 COBS_TERM_SIZE = 31
 COBS_POSITIVE_RATE = 0.4
@@ -42,16 +40,15 @@ class Cobs:
         p.false_positive_rate = COBS_POSITIVE_RATE
         setattr(p, 'continue', True)
 
-        Cobs.group_samples_by_signature_size(sample_paths, sample_names, p)
-        Cobs.build_new_indexes(p)
+        samples_by_sig_size = Cobs.group_samples_by_signature_size(sample_paths, sample_names, p)
+        Cobs.build_new_indexes(samples_by_sig_size, p)
         Cobs.combine_classic_indexes(p)
-
-        for sample_dir in Path(COBS_SAMPLE_DIR).iterdir():
-            for sample in sample_dir.glob('*'):
-                sample.unlink()
 
     @staticmethod
     def group_samples_by_signature_size(sample_paths, sample_names, params):
+        sig_sizes = sorted([int(x.name) for x in Path(COBS_CLASSIC_INDEXES_DIR).iterdir() if x.is_dir()])
+        samples_by_sig_size = {x: [] for x in sig_sizes}
+
         # cobs.DocumentEntry doesn't have a constructor, so the only way to construct one is to iterate a DocumentList
         with TemporaryDirectory() as tmpdir:
             doclist = cobs.DocumentList(tmpdir)
@@ -62,25 +59,29 @@ class Cobs:
             for doc, name in zip(doclist, sample_names):
                 signature_size = cobs.calc_signature_size(doc.num_terms(COBS_TERM_SIZE), params.num_hashes, params.false_positive_rate)
 
-                sorted_subdirs = sorted([int(x.name) for x in Path(COBS_SAMPLE_DIR).iterdir()])
-                sorted_subdirs = [Path(COBS_SAMPLE_DIR) / str(x) for x in sorted_subdirs]
-
-                for index_dir in sorted_subdirs:
-                    if index_dir.is_dir() and int(index_dir.name) > signature_size:
-                        file_extension = doc.path.split('.')[-1]
-                        new_sample_path = index_dir / (name + '.' + file_extension)
-                        shutil.copyfile(doc.path, new_sample_path)
+                for sig_size in sig_sizes:
+                    if sig_size > signature_size:
+                        sample = {'path': doc.path, 'name': name}
+                        samples_by_sig_size[sig_size].append(sample)
                         break
 
-    @staticmethod
-    def build_new_indexes(params):
-        for sample_dir in Path(COBS_SAMPLE_DIR).iterdir():
-            doclist = cobs.DocumentList(str(sample_dir))
-            for doc in doclist:
-                doc.name = Path(doc.path).name.split('.')[-2]
+        return samples_by_sig_size
 
-            classic_path = Path(COBS_CLASSIC_INDEXES_DIR) / sample_dir.name / (datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.' + COBS_CLASSIC_FILE_EXTENSION)
-            cobs.classic_construct_list(doclist, str(classic_path), params)
+    @staticmethod
+    def build_new_indexes(samples_by_sig_size, params):
+        for sig_size, samples in samples_by_sig_size.items():
+            params.signature_size = sig_size
+
+            with TemporaryDirectory() as tmpdir:
+                doclist = cobs.DocumentList(tmpdir)
+                for sample in samples:
+                    doclist.add(sample['path'])
+
+                for i, doc in enumerate(doclist):
+                    doc.name = samples[i]['name']
+
+                classic_path = Path(COBS_CLASSIC_INDEXES_DIR) / str(sig_size)
+                cobs.classic_construct_from_documents(doclist, str(classic_path), params)
 
     @staticmethod
     def combine_classic_indexes(params):
