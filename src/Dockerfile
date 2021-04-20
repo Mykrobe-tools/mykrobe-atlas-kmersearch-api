@@ -21,9 +21,8 @@ WORKDIR ..
 RUN pip install .
 
 WORKDIR /usr/src/app
-COPY requirements.txt test-requirements.txt ./
+COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
-RUN pip3 install --no-cache-dir -r test-requirements.txt
 COPY . .
 
 ENTRYPOINT ["python3"]

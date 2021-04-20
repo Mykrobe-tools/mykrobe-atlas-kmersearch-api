@@ -17,7 +17,7 @@ class Cobs:
         index_paths = []
         for path in Path(COBS_CLASSIC_INDEXES_DIR).iterdir():
             if path.is_dir():
-                index_paths += [p for p in path.iterdir() if p.is_file()]
+                index_paths += [p for p in path.iterdir() if Cobs.is_classic_index(p)]
         self.search_instances = [cobs.Search(str(index_path)) for index_path in index_paths]
 
     def search(self, query, threshold):
@@ -46,7 +46,7 @@ class Cobs:
 
     @staticmethod
     def group_samples_by_signature_size(sample_paths, sample_names, params):
-        sig_sizes = sorted([int(x.name) for x in Path(COBS_CLASSIC_INDEXES_DIR).iterdir() if x.is_dir()])
+        sig_sizes = sorted([int(x.name) for x in Path(COBS_CLASSIC_INDEXES_DIR).iterdir() if x.is_dir() and x.name.isnumeric()])
         samples_by_sig_size = {x: [] for x in sig_sizes}
 
         # cobs.DocumentEntry doesn't have a constructor, so the only way to construct one is to iterate a DocumentList
@@ -100,3 +100,7 @@ class Cobs:
 
                 for file in classic_files:
                     file.unlink()
+
+    @staticmethod
+    def is_classic_index(path: Path):
+        return path.is_file() and path.name.split('.')[-1] == COBS_CLASSIC_FILE_EXTENSION

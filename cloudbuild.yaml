@@ -43,8 +43,12 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: ["build", "-t", "$_IMAGE_REPOSITORY:$SHORT_SHA", "./src"]
 
+  # Build test image
+  - name: "gcr.io/cloud-builders/docker"
+    args: [ "build", "-t", "$_TEST_IMAGE_TAG", "-f", "./src/tests.Dockerfile", "--build-arg", "base_image=$_IMAGE_REPOSITORY:$SHORT_SHA", "./src" ]
+
   # Run tests
-  - name: "$_IMAGE_REPOSITORY:$SHORT_SHA"
+  - name: "$_TEST_IMAGE_TAG"
     args: ["-m", "pytest" ]
 
   # Push image
@@ -57,6 +61,7 @@ steps:
 timeout: 1800s
 
 substitutions:
+  _TEST_IMAGE_TAG: kms-tests
   _IMAGE_REPOSITORY: eu.gcr.io/atlas-275810/mykrobe-atlas-kmersearch-api
   _BITBUCKET_SECRET: ms-bitbucket-readonly
   _GITHUB_SECRET: atlas-jsonschema-readonly

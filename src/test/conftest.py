@@ -1,5 +1,7 @@
 import logging
+from os import environ
 
+import pytest
 from hypothesis import settings, HealthCheck
 from pytest import fixture
 
@@ -67,6 +69,10 @@ def build(make_request):
         }, *args, **kwargs)
 
     return _
+
+
+INTEGRATION_TEST = environ.get('INTEGRATION_TEST') == 'true'
+integration_test = pytest.mark.skipif(not INTEGRATION_TEST, reason='not running integration tests')
 
 
 settings.register_profile('default', suppress_health_check=(HealthCheck.function_scoped_fixture,))
