@@ -49,7 +49,6 @@ steps:
 
   # Run tests
   - name: "$_TEST_IMAGE_TAG"
-    args: ["-m", "pytest" ]
 
   # Push image
   - name: "gcr.io/cloud-builders/docker"
