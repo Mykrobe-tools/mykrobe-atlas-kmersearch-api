@@ -49,6 +49,7 @@ steps:
 
   # Run tests
   - name: "$_TEST_IMAGE_TAG"
+    dir: "src"
 
   # Push image
   - name: "gcr.io/cloud-builders/docker"
