@@ -41,6 +41,23 @@ paths:
                 $ref: '#/components/schemas/VariantSearchResults'
       tags:
         - variant_search
+  /build:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewSamples'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Samples'
+      tags:
+        - build
 components:
   schemas:
     SearchQuery:
@@ -101,4 +118,27 @@ components:
         genotype:
           type: string
         sample_name:
+          type: string
+    NewSamples:
+      type: object
+      properties:
+        sample_paths:
+          type: array
+          items:
+            type: string
+        sample_names:
+          type: array
+          items:
+            type: string
+    Samples:
+      type: object
+      properties:
+        samples:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sample'
+    Sample:
+      type: object
+      properties:
+        name:
           type: string

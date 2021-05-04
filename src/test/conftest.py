@@ -1,5 +1,7 @@
 import logging
+from os import environ
 
+import pytest
 from hypothesis import settings, HealthCheck
 from pytest import fixture
 
@@ -56,6 +58,21 @@ def variant_search(make_request):
         return make_request(f'/api/v1/variant_search', 'POST', json=body, *args, **kwargs)
 
     return _
+
+
+@fixture
+def build(make_request):
+    def _(sample_paths, sample_names, *args, **kwargs):
+        return make_request(f'/api/v1/build', 'POST', json={
+            'sample_paths': sample_paths,
+            'sample_names': sample_names,
+        }, *args, **kwargs)
+
+    return _
+
+
+INTEGRATION_TEST = environ.get('INTEGRATION_TEST') == 'true'
+integration_test = pytest.mark.skipif(not INTEGRATION_TEST, reason='not running integration tests')
 
 
 settings.register_profile('default', suppress_health_check=(HealthCheck.function_scoped_fixture,))
