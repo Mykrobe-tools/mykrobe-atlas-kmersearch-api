@@ -1,4 +1,5 @@
 import subprocess
+from collections import defaultdict
 from datetime import datetime
 from os import environ
 from pathlib import Path
@@ -13,9 +14,11 @@ COBS_POSITIVE_RATE = 0.4
 
 
 class Cobs:
-    def __init__(self):
+    def __init__(self, classic_index_dir=COBS_CLASSIC_INDEXES_DIR):
+        self.classic_index_dir = classic_index_dir
+
         index_paths = []
-        for path in Path(COBS_CLASSIC_INDEXES_DIR).iterdir():
+        for path in Path(self.classic_index_dir).iterdir():
             if path.is_dir():
                 index_paths += [p for p in path.iterdir() if Cobs.is_classic_index(p)]
         self.search_instances = [cobs.Search(str(index_path)) for index_path in index_paths]
@@ -31,8 +34,7 @@ class Cobs:
             flatten.append((r.score, r.doc_name))
         return flatten
 
-    @staticmethod
-    def build(sample_paths, sample_names):
+    def build(self, sample_paths, sample_names):
         assert len(sample_paths) == len(sample_names)
 
         p = cobs.ClassicIndexParameters()
@@ -40,14 +42,13 @@ class Cobs:
         p.false_positive_rate = COBS_POSITIVE_RATE
         setattr(p, 'continue', True)
 
-        samples_by_sig_size = Cobs.group_samples_by_signature_size(sample_paths, sample_names, p)
-        Cobs.build_new_indexes(samples_by_sig_size, p)
-        Cobs.combine_classic_indexes(p)
+        samples_by_sig_size = self.group_samples_by_signature_size(sample_paths, sample_names, p)
+        self.build_new_indexes(samples_by_sig_size, p)
+        self.combine_classic_indexes(p)
 
-    @staticmethod
-    def group_samples_by_signature_size(sample_paths, sample_names, params):
-        sig_sizes = sorted([int(x.name) for x in Path(COBS_CLASSIC_INDEXES_DIR).iterdir() if x.is_dir() and x.name.isnumeric()])
-        samples_by_sig_size = {x: [] for x in sig_sizes}
+    def group_samples_by_signature_size(self, sample_paths, sample_names, params):
+        sig_sizes = sorted([int(x.name) for x in Path(self.classic_index_dir).iterdir() if x.is_dir() and x.name.isnumeric()])
+        samples_by_sig_size = defaultdict(list)
 
         # cobs.DocumentEntry doesn't have a constructor, so the only way to construct one is to iterate a DocumentList
         with TemporaryDirectory() as tmpdir:
@@ -55,20 +56,30 @@ class Cobs:
             for original_sample_path in sample_paths:
                 doclist.add(original_sample_path.strip())
 
-            # Copy sample file to the group with the smallest signature size that is larger than its own
             for doc, name in zip(doclist, sample_names):
                 signature_size = cobs.calc_signature_size(doc.num_terms(COBS_TERM_SIZE), params.num_hashes, params.false_positive_rate)
 
-                for sig_size in sig_sizes:
-                    if sig_size > signature_size:
-                        sample = {'path': doc.path, 'name': name}
-                        samples_by_sig_size[sig_size].append(sample)
-                        break
+                current_max_sig_size = sig_sizes[-1]
+                correct_sig_size = 0
+                if current_max_sig_size <= signature_size:
+                    new_sig_size = 10 ** len(str(signature_size))
+
+                    self.create_new_signature_threshold(new_sig_size)
+                    correct_sig_size = new_sig_size
+
+                    sig_sizes.append(new_sig_size)
+                else:
+                    for sig_size in sig_sizes:
+                        if sig_size > signature_size:
+                            correct_sig_size = sig_size
+                            break
+
+                sample = {'path': doc.path, 'name': name}
+                samples_by_sig_size[correct_sig_size].append(sample)
 
         return samples_by_sig_size
 
-    @staticmethod
-    def build_new_indexes(samples_by_sig_size, params):
+    def build_new_indexes(self, samples_by_sig_size, params):
         for sig_size, samples in samples_by_sig_size.items():
             params.signature_size = sig_size
 
@@ -80,12 +91,11 @@ class Cobs:
                 for i, doc in enumerate(doclist):
                     doc.name = samples[i]['name']
 
-                classic_path = Path(COBS_CLASSIC_INDEXES_DIR) / str(sig_size)
+                classic_path = Path(self.classic_index_dir) / str(sig_size)
                 cobs.classic_construct_from_documents(doclist, str(classic_path), params)
 
-    @staticmethod
-    def combine_classic_indexes(params):
-        for path in Path(COBS_CLASSIC_INDEXES_DIR).iterdir():
+    def combine_classic_indexes(self, params):
+        for path in Path(self.classic_index_dir).iterdir():
             classic_files = list(path.glob('*.' + COBS_CLASSIC_FILE_EXTENSION))
             if len(classic_files) > 1:
                 combined_path = path / (datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.' + COBS_CLASSIC_FILE_EXTENSION)
@@ -104,3 +114,6 @@ class Cobs:
     @staticmethod
     def is_classic_index(path: Path):
         return path.is_file() and path.name.split('.')[-1] == COBS_CLASSIC_FILE_EXTENSION
+
+    def create_new_signature_threshold(self, new_sig_size):
+        (Path(self.classic_index_dir) / str(new_sig_size)).mkdir()
