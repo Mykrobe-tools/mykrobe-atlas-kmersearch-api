@@ -16,8 +16,8 @@ run:
 build_tests:
 	docker build -t $(test_image) -f src/tests.Dockerfile src
 
-tests:
-	docker run --rm -it $(test_image)
+test:
+	docker run --rm -it $(test_image) $(args)
 
 clean:
 	docker system prune -f --volumes

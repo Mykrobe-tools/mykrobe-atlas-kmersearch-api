@@ -1,9 +1,9 @@
 import connexion
 
+from openapi_server.db import get_cobs
 from openapi_server.models import Sample
 from openapi_server.models.new_samples import NewSamples  # noqa: E501
 from openapi_server.models.samples import Samples  # noqa: E501
-from wrappers.cobs import Cobs
 
 
 def build_post(new_samples=None):  # noqa: E501
@@ -19,7 +19,8 @@ def build_post(new_samples=None):  # noqa: E501
     if connexion.request.is_json:
         new_samples = NewSamples.from_dict(connexion.request.get_json())  # noqa: E501
 
-    Cobs.build(new_samples.sample_paths, new_samples.sample_names)
+    cobs = get_cobs()
+    cobs.build(new_samples.sample_paths, new_samples.sample_names)
 
     return Samples([
         Sample(name=name) for name in new_samples.sample_names
