@@ -62,7 +62,7 @@ class Cobs:
                 current_max_sig_size = sig_sizes[-1]
                 correct_sig_size = 0
                 if current_max_sig_size <= signature_size:
-                    new_sig_size = 10 ** len(str(signature_size))
+                    new_sig_size = 2 * current_max_sig_size
 
                     self.create_new_signature_threshold(new_sig_size)
                     correct_sig_size = new_sig_size
