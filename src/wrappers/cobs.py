@@ -10,7 +10,7 @@ import cobs_index as cobs
 COBS_CLASSIC_INDEXES_DIR = environ.get('COBS_CLASSIC_INDEXES_DIR', '/data/classic')
 COBS_CLASSIC_FILE_EXTENSION = 'cobs_classic'
 COBS_TERM_SIZE = 31
-COBS_POSITIVE_RATE = 0.4
+COBS_FALSE_POSITIVE_RATE = float(environ.get('COBS_FALSE_POSITIVE_RATE', 0.4))
 
 
 class Cobs:
@@ -39,7 +39,7 @@ class Cobs:
 
         p = cobs.ClassicIndexParameters()
         p.term_size = COBS_TERM_SIZE
-        p.false_positive_rate = COBS_POSITIVE_RATE
+        p.false_positive_rate = COBS_FALSE_POSITIVE_RATE
         setattr(p, 'continue', True)
 
         samples_by_sig_size = self.group_samples_by_signature_size(sample_paths, sample_names, p)
