@@ -62,12 +62,9 @@ class Cobs:
                 current_max_sig_size = sig_sizes[-1]
                 correct_sig_size = 0
                 if current_max_sig_size < signature_size:
-                    new_sig_size = 2 * current_max_sig_size
-
-                    self.create_new_signature_threshold(new_sig_size)
-                    correct_sig_size = new_sig_size
-
-                    sig_sizes.append(new_sig_size)
+                    new_sig_sizes = self.create_new_signature_thresholds(current_max_sig_size, signature_size)
+                    correct_sig_size = new_sig_sizes[-1]
+                    sig_sizes += new_sig_sizes
                 else:
                     for sig_size in sig_sizes:
                         if sig_size >= signature_size:
@@ -115,5 +112,14 @@ class Cobs:
     def is_classic_index(path: Path):
         return path.is_file() and path.name.split('.')[-1] == COBS_CLASSIC_FILE_EXTENSION
 
-    def create_new_signature_threshold(self, new_sig_size):
-        (Path(self.classic_index_dir) / str(new_sig_size)).mkdir()
+    def create_new_signature_thresholds(self, current_max_sig_size, signature_size):
+        new_sig_sizes = []
+
+        while current_max_sig_size < signature_size:
+            new_sig_size = 2 * current_max_sig_size
+            (Path(self.classic_index_dir) / str(new_sig_size)).mkdir()
+            new_sig_sizes.append(new_sig_size)
+
+            current_max_sig_size = new_sig_size
+
+        return new_sig_sizes

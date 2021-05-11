@@ -28,9 +28,12 @@ def test_building_indices(make_classic_index_dir):
 
 
 @integration_test
-def test_creating_new_signature_size(make_classic_index_dir):
+def test_creating_new_signature_sizes(make_classic_index_dir):
     tmp_classic_index_dir = make_classic_index_dir([1000])
+
     check_building_and_searching_test_data(str(tmp_classic_index_dir))
+
+    assert len(list(tmp_classic_index_dir.glob('*'))) == 15
 
 
 def check_building_and_searching_test_data(tmp_classic_index_dir):
