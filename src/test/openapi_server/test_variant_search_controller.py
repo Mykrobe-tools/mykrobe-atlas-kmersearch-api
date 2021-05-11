@@ -2,6 +2,7 @@ from hypothesis import given
 from hypothesis.strategies import dictionaries, text
 
 from openapi_server.models import VariantSearchResults
+from test.conftest import integration_test
 from test.strategies import snps, positions
 
 
@@ -43,3 +44,19 @@ def test_amino_acid_mutation_search_response(gene, genbank, ref, pos, alt, mock_
     response = variant_search(ref, pos, alt, gene, genbank)
     assert response.status_code == 200
     assert VariantSearchResults.from_dict(response.json) == VariantSearchResults.from_dict(mock_search_results)
+
+
+@integration_test
+def test_integration(search, build):
+    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
+    sample_names = ['a', 'b']
+    build(sample_paths, sample_names)
+
+    response = search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
+    assert response.status_code == 200
+
+    results = VariantSearchResults.from_dict(response.json)
+    count = 0
+    for _ in results.results:
+        count += 1
+    assert count > 0

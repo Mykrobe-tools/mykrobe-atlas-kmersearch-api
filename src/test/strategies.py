@@ -31,3 +31,8 @@ def positions(draw):
 @composite
 def fasta_strings(draw):
     return draw(from_regex(r'^>')).encode()
+
+
+@composite
+def sample_names(draw):
+    return draw(text())

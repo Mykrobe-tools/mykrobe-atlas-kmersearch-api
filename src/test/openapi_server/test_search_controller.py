@@ -2,6 +2,7 @@ from hypothesis import given
 from hypothesis.strategies import lists, text
 
 from openapi_server.models import SearchResults
+from test.conftest import integration_test
 from test.strategies import cobs_results, thresholds, seqs
 from wrappers.cobs import COBS_TERM_SIZE
 
@@ -38,3 +39,21 @@ def test_invalid_seq_lengths(seq, threshold, search, monkeypatch):
 
     response = search(seq, threshold)
     assert response.status_code == 400
+
+
+@integration_test
+def test_integration(search, build):
+    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
+    sample_names = ['a', 'b']
+    build(sample_paths, sample_names)
+
+    response = search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
+    assert response.status_code == 200
+
+    results = SearchResults.from_dict(response.json)
+    count = 0
+    for result in results.results:
+        assert result.num_kmers_found > 0
+        assert result.sample_name in sample_names
+        count += 1
+    assert count > 0
