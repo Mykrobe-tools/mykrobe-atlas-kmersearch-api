@@ -7,6 +7,8 @@ from tempfile import TemporaryDirectory
 
 import cobs_index as cobs
 
+from utils.file import peek
+
 COBS_CLASSIC_INDEXES_DIR = environ.get('COBS_CLASSIC_INDEXES_DIR', '/data/classic')
 COBS_CLASSIC_FILE_EXTENSION = 'cobs_classic'
 COBS_TERM_SIZE = 31
@@ -16,12 +18,17 @@ COBS_FALSE_POSITIVE_RATE = float(environ.get('COBS_FALSE_POSITIVE_RATE', 0.4))
 class Cobs:
     def __init__(self, classic_index_dir=COBS_CLASSIC_INDEXES_DIR):
         self.classic_index_dir = classic_index_dir
+        self.index_paths = []
+        self.search_instances = []
 
-        index_paths = []
+        self.reconstruct_instances()
+
+    def reconstruct_instances(self):
+        self.index_paths = []
         for path in Path(self.classic_index_dir).iterdir():
             if path.is_dir():
-                index_paths += [p for p in path.iterdir() if Cobs.is_classic_index(p)]
-        self.search_instances = [cobs.Search(str(index_path)) for index_path in index_paths]
+                self.index_paths += [p for p in path.iterdir() if Cobs.is_classic_index(p)]
+        self.search_instances = [cobs.Search(str(index_path)) for index_path in self.index_paths]
 
     def search(self, query, threshold):
         results = []
@@ -45,6 +52,8 @@ class Cobs:
         samples_by_sig_size = self.group_samples_by_signature_size(sample_paths, sample_names, p)
         self.build_new_indexes(samples_by_sig_size, p)
         self.combine_classic_indexes(p)
+
+        self.reconstruct_instances()
 
     def group_samples_by_signature_size(self, sample_paths, sample_names, params):
         sig_sizes = sorted([int(x.name) for x in Path(self.classic_index_dir).iterdir() if x.is_dir() and x.name.isnumeric()])
@@ -93,10 +102,10 @@ class Cobs:
 
     def combine_classic_indexes(self, params):
         for path in Path(self.classic_index_dir).iterdir():
+            combined_path = path / Cobs.generate_index_filename()
+
             classic_files = list(path.glob('*.' + COBS_CLASSIC_FILE_EXTENSION))
             if len(classic_files) > 1:
-                combined_path = path / (datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.' + COBS_CLASSIC_FILE_EXTENSION)
-
                 # Not sure why using exposed Python function raised an IO error. Probably permission issue from tornado thread
                 subprocess.check_output([
                     'cobs', 'classic-combine', str(path), str(path), combined_path,
@@ -107,6 +116,46 @@ class Cobs:
 
                 for file in classic_files:
                     file.unlink()
+            elif len(classic_files) == 1:
+                classic_files[0].rename(combined_path)
+
+    def rename_samples(self, mapping):
+        for index_path in self.index_paths:
+            new_path = index_path.parent / Cobs.generate_index_filename()
+
+            with open(index_path, 'rb') as infile, open(new_path, 'wb') as outfile:
+                outfile.write(infile.read(47))
+
+                magic_word = 'CLASSIC_INDEX'
+                ahead = peek(infile, len(magic_word))
+                while ahead.decode() != magic_word:
+                    sample_name = infile.readline().strip().decode()
+
+                    if sample_name in mapping:
+                        key = sample_name
+                        sample_name = mapping[sample_name]
+                        del mapping[key]
+
+                    outfile.write((sample_name + '\n').encode())
+
+                    ahead = peek(infile, len(magic_word))
+
+                chunk_size = 512000000
+                data = infile.read(chunk_size)
+                while data != b'':
+                    outfile.write(data)
+                    data = infile.read(chunk_size)
+
+            index_path.unlink()
+
+            if not mapping:
+                break
+
+        self.reconstruct_instances()
+
+    @staticmethod
+    def generate_index_filename():
+        return datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.' + COBS_CLASSIC_FILE_EXTENSION
 
     @staticmethod
     def is_classic_index(path: Path):

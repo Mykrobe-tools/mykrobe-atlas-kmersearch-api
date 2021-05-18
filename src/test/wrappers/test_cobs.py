@@ -1,3 +1,5 @@
+from time import sleep
+
 from pytest import fixture
 
 from test.conftest import integration_test
@@ -34,6 +36,25 @@ def test_creating_new_signature_sizes(make_classic_index_dir):
     check_building_and_searching_test_data(str(tmp_classic_index_dir))
 
     assert len(list(tmp_classic_index_dir.glob('*'))) == 15
+
+
+@integration_test
+def test_renaming_samples(make_classic_index_dir):
+    tmp_classic_index_dir = make_classic_index_dir()
+
+    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
+    sample_names = ['a', 'b']
+
+    cobs = Cobs(tmp_classic_index_dir)
+    cobs.build(sample_paths, sample_names)
+
+    sleep(1)  # so that the generated-from-timestamp new index filename will be different
+    cobs.rename_samples({'a': 'x'})
+
+    results = cobs.search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
+    samples = [y for x, y in results]
+
+    assert 'x' in samples
 
 
 def check_building_and_searching_test_data(tmp_classic_index_dir):
