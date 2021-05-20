@@ -1,11 +1,11 @@
+from hashlib import md5
 from pathlib import Path
 from time import sleep
 
 from pytest import fixture
 
 from test.conftest import integration_test
-from wrappers.cobs import Cobs
-
+from wrappers.cobs import Cobs, COBS_CLASSIC_FILE_EXTENSION
 
 SAMPLE_PATHS = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
 TEST_QUERY = 'AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT'
@@ -49,3 +49,20 @@ def test_renaming_samples(built_classic_dir):
     samples = [y for x, y in results]
 
     assert 'x' in samples
+
+
+@integration_test
+def test_renaming_non_existent_samples_leaves_index_files_untouched(built_classic_dir):
+    signatures = []
+    for file in built_classic_dir.glob('*/*.' + COBS_CLASSIC_FILE_EXTENSION):
+        signatures.append(md5(open(file, 'rb').read()).hexdigest())
+
+    sleep(1)  # so that the generated-from-timestamp "new" index filename will be different
+    cobs = Cobs(built_classic_dir)
+    cobs.rename_samples({'x': 'y'})
+
+    index_files = built_classic_dir.glob('*/*.' + COBS_CLASSIC_FILE_EXTENSION)
+    assert len(list(index_files)) == len(signatures)
+
+    for file in index_files:
+        assert md5(open(file, 'rb').read()).hexdigest() in signatures

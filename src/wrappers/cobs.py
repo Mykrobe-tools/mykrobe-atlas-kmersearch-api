@@ -121,11 +121,16 @@ class Cobs:
 
     def rename_samples(self, mapping):
         for index_path in self.index_paths:
+            if not mapping:
+                break
+
             new_path = index_path.parent / Cobs.generate_index_filename()
 
             with open(index_path, 'rb') as infile, open(new_path, 'wb') as outfile:
+                # Rewrite the unchanged part (first 47 bytes) of the header
                 outfile.write(infile.read(47))
 
+                at_least_one_changed = False
                 magic_word = 'CLASSIC_INDEX'
                 ahead = peek(infile, len(magic_word))
                 while ahead.decode() != magic_word:
@@ -136,20 +141,23 @@ class Cobs:
                         sample_name = mapping[sample_name]
                         del mapping[key]
 
+                        at_least_one_changed = True
+
                     outfile.write((sample_name + '\n').encode())
 
                     ahead = peek(infile, len(magic_word))
 
-                chunk_size = 512000000
-                data = infile.read(chunk_size)
-                while data != b'':
-                    outfile.write(data)
+                if at_least_one_changed:
+                    chunk_size = 4 * 1024 * 1024
                     data = infile.read(chunk_size)
+                    while data != b'':
+                        outfile.write(data)
+                        data = infile.read(chunk_size)
 
-            index_path.unlink()
-
-            if not mapping:
-                break
+            if at_least_one_changed:
+                index_path.unlink()
+            else:
+                new_path.unlink()
 
         self.reconstruct_instances()
 
