@@ -47,11 +47,7 @@ def test_amino_acid_mutation_search_response(gene, genbank, ref, pos, alt, mock_
 
 
 @integration_test
-def test_integration(search, build):
-    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
-    sample_names = ['a', 'b']
-    build(sample_paths, sample_names)
-
+def test_integration(search):
     response = search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
     assert response.status_code == 200
 

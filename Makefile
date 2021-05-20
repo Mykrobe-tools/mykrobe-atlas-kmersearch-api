@@ -10,8 +10,9 @@ generate:
 build:
 	docker build -t $(tag) src
 
+DEBUG ?= 0
 run:
-	docker run --rm -v $(shell pwd)/data:/data -it -p 8000:8000 $(tag)
+	docker run --rm -v $(shell pwd)/data:/data -it -p 8000:8000 -e DEBUG=$(DEBUG) $(tag)
 
 build_tests:
 	docker build -t $(test_image) -f src/tests.Dockerfile src
