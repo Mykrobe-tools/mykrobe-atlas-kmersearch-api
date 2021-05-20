@@ -42,10 +42,8 @@ def test_invalid_seq_lengths(seq, threshold, search, monkeypatch):
 
 
 @integration_test
-def test_integration(search, build):
-    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
+def test_integration(search):
     sample_names = ['a', 'b']
-    build(sample_paths, sample_names)
 
     response = search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
     assert response.status_code == 200

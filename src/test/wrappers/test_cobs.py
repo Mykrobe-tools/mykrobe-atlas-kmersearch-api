@@ -1,3 +1,4 @@
+from pathlib import Path
 from time import sleep
 
 from pytest import fixture
@@ -6,65 +7,45 @@ from test.conftest import integration_test
 from wrappers.cobs import Cobs
 
 
-@fixture
-def make_classic_index_dir(tmp_path):
-    def _(existing_sig_sizes=None):
-        if not existing_sig_sizes:
-            existing_sig_sizes = [9000000, 10000000]
-
-        classic_index_dir = tmp_path / 'classic'
-        classic_index_dir.mkdir()
-
-        for t in existing_sig_sizes:
-            (classic_index_dir / str(t)).mkdir()
-
-        return classic_index_dir
-
-    return _
+SAMPLE_PATHS = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
+TEST_QUERY = 'AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT'
 
 
-@integration_test
-def test_building_indices(make_classic_index_dir):
-    tmp_classic_index_dir = make_classic_index_dir()
-    check_building_and_searching_test_data(str(tmp_classic_index_dir))
+@fixture(scope='session')
+def built_classic_dir():
+    classic_dir = Path('/data/classic')
 
-
-@integration_test
-def test_creating_new_signature_sizes(make_classic_index_dir):
-    tmp_classic_index_dir = make_classic_index_dir([1000])
-
-    check_building_and_searching_test_data(str(tmp_classic_index_dir))
-
-    assert len(list(tmp_classic_index_dir.glob('*'))) == 15
-
-
-@integration_test
-def test_renaming_samples(make_classic_index_dir):
-    tmp_classic_index_dir = make_classic_index_dir()
-
-    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
+    sample_paths = SAMPLE_PATHS
     sample_names = ['a', 'b']
 
-    cobs = Cobs(tmp_classic_index_dir)
+    cobs = Cobs(classic_dir)
     cobs.build(sample_paths, sample_names)
 
+    return classic_dir
+
+
+@integration_test
+def test_creating_new_signature_sizes(tmp_path):
+    classic_index_dir = tmp_path / 'classic'
+    classic_index_dir.mkdir()
+    (classic_index_dir / '1000').mkdir()
+
+    sample_paths = SAMPLE_PATHS
+    sample_names = ['a', 'b']
+
+    cobs = Cobs(classic_index_dir)
+    cobs.build(sample_paths, sample_names)
+
+    assert len(list(classic_index_dir.glob('*'))) == 15
+
+
+@integration_test
+def test_renaming_samples(built_classic_dir):
     sleep(1)  # so that the generated-from-timestamp new index filename will be different
+    cobs = Cobs(built_classic_dir)
     cobs.rename_samples({'a': 'x'})
 
-    results = cobs.search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
+    results = cobs.search(TEST_QUERY, 0.1)
     samples = [y for x, y in results]
 
     assert 'x' in samples
-
-
-def check_building_and_searching_test_data(tmp_classic_index_dir):
-    sample_paths = ['test/data/input/sample.kmer31.q5cleaned_8.ctx', 'test/data/input/sample.kmer31.q5cleaned_26.ctx']
-    sample_names = ['a', 'b']
-
-    cobs = Cobs(tmp_classic_index_dir)
-    cobs.build(sample_paths, sample_names)
-
-    cobs = Cobs(tmp_classic_index_dir)
-    results = cobs.search('AGTCAACGCTAAGGCATTTCCCCCCTGCCTCCTGCCTGCTGCCAAGCCCT', 0.1)
-
-    assert len(results) == 2
