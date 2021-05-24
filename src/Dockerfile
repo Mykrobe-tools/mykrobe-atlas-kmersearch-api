@@ -24,6 +24,7 @@ WORKDIR /usr/src/app
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
+RUN pip install .
 
 ENV COBS_FALSE_POSITIVE_RATE=0.3
 ENV DEBUG=0
