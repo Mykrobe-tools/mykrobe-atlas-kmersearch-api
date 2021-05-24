@@ -1,22 +1,25 @@
-import click
+import argparse
 
 from wrappers.cobs import Cobs
 
 
-@click.command()
-@click.argument('infile', type=click.File('r'))
-def rename_samples(infile):
+parser = argparse.ArgumentParser()
+parser.add_argument('infile')
+parser.add_argument('--classic_index_dir')
+
+
+def rename_samples(infile, classic_index_dir):
     mapping = {}
 
-    lines = infile.readlines()
-    for line in lines:
-        line = line.strip()
-        old, new = line.split('\t')
-        mapping[old] = new
-
-    cobs = Cobs()
-    cobs.rename_samples(mapping)
+    with open(infile, 'r') as f:
+        for line in f:
+            line = line.strip()
+            old, new = line.split('\t')
+            mapping[old] = new
+        cobs = Cobs(classic_index_dir)
+        cobs.rename_samples(mapping)
 
 
 if __name__ == '__main__':
-    rename_samples()
+    args = parser.parse_args()
+    rename_samples(args.infile, args.classic_index_dir)
