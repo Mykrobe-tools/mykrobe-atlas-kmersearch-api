@@ -12,7 +12,7 @@ build:
 
 DEBUG ?= 0
 run:
-	docker run --rm -v $(shell pwd)/data:/data -it -p 8000:8000 -e DEBUG=$(DEBUG) $(tag)
+	docker run --rm -v $(shell pwd)/data:/data -it -p 8000:8000 -e DEBUG=$(DEBUG) $(tag) $(cmd)
 
 build_tests:
 	docker build -t $(test_image) -f src/tests.Dockerfile src
