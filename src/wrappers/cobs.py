@@ -16,8 +16,8 @@ COBS_FALSE_POSITIVE_RATE = float(environ.get('COBS_FALSE_POSITIVE_RATE', 0.4))
 
 
 class Cobs:
-    def __init__(self, classic_index_dir=COBS_CLASSIC_INDEXES_DIR):
-        self.classic_index_dir = classic_index_dir
+    def __init__(self, classic_index_dir=None):
+        self.classic_index_dir = classic_index_dir or COBS_CLASSIC_INDEXES_DIR
         self.index_paths = []
         self.search_instances = []
 
@@ -41,12 +41,12 @@ class Cobs:
             flatten.append((r.score, r.doc_name))
         return flatten
 
-    def build(self, sample_paths, sample_names):
+    def build(self, sample_paths, sample_names, term_size=None, false_positive_rate=None):
         assert len(sample_paths) == len(sample_names)
 
         p = cobs.ClassicIndexParameters()
-        p.term_size = COBS_TERM_SIZE
-        p.false_positive_rate = COBS_FALSE_POSITIVE_RATE
+        p.term_size = term_size or COBS_TERM_SIZE
+        p.false_positive_rate = false_positive_rate or COBS_FALSE_POSITIVE_RATE
         setattr(p, 'continue', True)
 
         samples_by_sig_size = self.group_samples_by_signature_size(sample_paths, sample_names, p)
