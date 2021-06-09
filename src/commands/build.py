@@ -3,7 +3,7 @@ import argparse
 from wrappers.cobs import Cobs
 
 
-def build(infile, classic_index_dir, term_size, false_positive_rate):
+def build(infile, classic_index_dir, term_size, false_positive_rate, signature_size, keep_temporary, combine):
     sample_names = []
     sample_paths = []
 
@@ -15,7 +15,7 @@ def build(infile, classic_index_dir, term_size, false_positive_rate):
             sample_paths.append(path)
 
         cobs = Cobs(classic_index_dir)
-        cobs.build(sample_paths, sample_names, term_size, false_positive_rate)
+        cobs.build(sample_paths, sample_names, term_size, false_positive_rate, signature_size, keep_temporary, combine)
 
 
 def main():
@@ -24,6 +24,10 @@ def main():
     parser.add_argument('--classic_index_dir')
     parser.add_argument('--term_size', type=int)
     parser.add_argument('--false_positive_rate', type=float)
+    parser.add_argument('--signature_size', type=int, default=0)
+    parser.add_argument('--keep_temporary', action='store_true')
+    parser.add_argument('--dont_combine', action='store_true')
     args = parser.parse_args()
 
-    build(args.infile, args.classic_index_dir, args.term_size, args.false_positive_rate)
+    build(args.infile, args.classic_index_dir, args.term_size, args.false_positive_rate, args.signature_size,
+          args.keep_temporary, not args.dont_combine)
