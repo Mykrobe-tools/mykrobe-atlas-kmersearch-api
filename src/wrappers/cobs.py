@@ -208,4 +208,4 @@ class Cobs:
         return new_sig_sizes
 
     def create_signature_size_dir(self, signature_size):
-        (Path(self.classic_index_dir) / str(signature_size)).mkdir()
+        (Path(self.classic_index_dir) / str(signature_size)).mkdir(exist_ok=True)
