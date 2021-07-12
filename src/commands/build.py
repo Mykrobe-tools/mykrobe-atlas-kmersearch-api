@@ -25,8 +25,8 @@ def main():
     parser.add_argument('--term_size', type=int)
     parser.add_argument('--false_positive_rate', type=float)
     parser.add_argument('--signature_size', type=int, default=0)
-    parser.add_argument('--keep_temporary', action='store_true')
-    parser.add_argument('--dont_combine', action='store_true')
+    parser.add_argument('--keep_temporary', action='store_false')
+    parser.add_argument('--dont_combine', action='store_false')
     args = parser.parse_args()
 
     build(args.infile, args.classic_index_dir, args.term_size, args.false_positive_rate, args.signature_size,
