@@ -41,17 +41,36 @@ class Cobs:
             flatten.append((r.score, r.doc_name))
         return flatten
 
-    def build(self, sample_paths, sample_names, term_size=None, false_positive_rate=None):
+    def build(self, sample_paths, sample_names, term_size=None, false_positive_rate=None, signature_size=0,
+              keep_temporary=False, combine=True):
+        """
+
+        :param sample_paths:
+        :param sample_names:
+        :param term_size:
+        :param false_positive_rate:
+        :param signature_size: In vanilla COBS, the default value for this parameter is 0, but its default behaviour is
+                                what we want to avoid. Therefore, we also set the default for this param in our function
+                                to be 0, and handle that case our way, preventing vanilla COBS' default behaviour to
+                                ever be triggered.
+        :param keep_temporary:
+        :param combine:
+        :return:
+        """
+
         assert len(sample_paths) == len(sample_names)
 
         p = cobs.ClassicIndexParameters()
         p.term_size = term_size or COBS_TERM_SIZE
         p.false_positive_rate = false_positive_rate or COBS_FALSE_POSITIVE_RATE
+        p.signature_size = signature_size
+        p.keep_temporary = keep_temporary
         setattr(p, 'continue', True)
 
         samples_by_sig_size = self.group_samples_by_signature_size(sample_paths, sample_names, p)
         self.build_new_indexes(samples_by_sig_size, p)
-        self.combine_classic_indexes(p)
+        if combine:
+            self.combine_classic_indexes(p)
 
         self.reconstruct_instances()
 
@@ -66,19 +85,23 @@ class Cobs:
                 doclist.add(original_sample_path.strip())
 
             for doc, name in zip(doclist, sample_names):
-                signature_size = cobs.calc_signature_size(doc.num_terms(COBS_TERM_SIZE), params.num_hashes, params.false_positive_rate)
-
-                current_max_sig_size = sig_sizes[-1]
-                correct_sig_size = 0
-                if current_max_sig_size < signature_size:
-                    new_sig_sizes = self.create_new_signature_thresholds(current_max_sig_size, signature_size)
-                    correct_sig_size = new_sig_sizes[-1]
-                    sig_sizes += new_sig_sizes
+                if params.signature_size != 0:
+                    correct_sig_size = params.signature_size
+                    self.create_signature_size_dir(correct_sig_size)
                 else:
-                    for sig_size in sig_sizes:
-                        if sig_size >= signature_size:
-                            correct_sig_size = sig_size
-                            break
+                    signature_size = cobs.calc_signature_size(doc.num_terms(COBS_TERM_SIZE), params.num_hashes, params.false_positive_rate)
+
+                    current_max_sig_size = sig_sizes[-1]
+                    correct_sig_size = 0
+                    if current_max_sig_size < signature_size:
+                        new_sig_sizes = self.create_new_signature_thresholds(current_max_sig_size, signature_size)
+                        correct_sig_size = new_sig_sizes[-1]
+                        sig_sizes += new_sig_sizes
+                    else:
+                        for sig_size in sig_sizes:
+                            if sig_size >= signature_size:
+                                correct_sig_size = sig_size
+                                break
 
                 sample = {'path': doc.path, 'name': name}
                 samples_by_sig_size[correct_sig_size].append(sample)
@@ -107,15 +130,18 @@ class Cobs:
             classic_files = list(path.glob('*.' + COBS_CLASSIC_FILE_EXTENSION))
             if len(classic_files) > 1:
                 # Not sure why using exposed Python function raised an IO error. Probably permission issue from tornado thread
-                subprocess.check_output([
+                cmd = [
                     'cobs', 'classic-combine', str(path), str(path), combined_path,
                     '-m', str(params.mem_bytes),
                     '-T', str(params.num_threads),
-                    '--keep-temporary',
-                ])
+                ]
+                if params.keep_temporary:
+                    cmd.append('--keep-temporary')
+                subprocess.check_output(cmd)
 
-                for file in classic_files:
-                    file.unlink()
+                if not params.keep_temporary:
+                    for file in classic_files:
+                        file.unlink()
             elif len(classic_files) == 1:
                 classic_files[0].rename(combined_path)
 
@@ -174,9 +200,12 @@ class Cobs:
 
         while current_max_sig_size < signature_size:
             new_sig_size = 2 * current_max_sig_size
-            (Path(self.classic_index_dir) / str(new_sig_size)).mkdir()
+            self.create_signature_size_dir(new_sig_size)
             new_sig_sizes.append(new_sig_size)
 
             current_max_sig_size = new_sig_size
 
         return new_sig_sizes
+
+    def create_signature_size_dir(self, signature_size):
+        (Path(self.classic_index_dir) / str(signature_size)).mkdir(exist_ok=True)

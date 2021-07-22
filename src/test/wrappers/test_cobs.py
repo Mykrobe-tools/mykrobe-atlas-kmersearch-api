@@ -19,7 +19,7 @@ def built_classic_dir():
     sample_names = ['a', 'b']
 
     cobs = Cobs(classic_dir)
-    cobs.build(sample_paths, sample_names)
+    cobs.build(sample_paths, sample_names, keep_temporary=True)
 
     return classic_dir
 
