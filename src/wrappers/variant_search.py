@@ -1,12 +1,14 @@
 import subprocess
 import tempfile
-from os import environ
+from os import getenv
 
 from pyfasta import Fasta
 
 from wrappers.cobs import COBS_TERM_SIZE
 
-TB_REF = environ.get('TB_REF', '/data/NC_000962.3.fasta')
+TB_REF = getenv('TB_REF', '/data/NC_000962.3.fasta')
+BACKGROUND_VARIANTS_DB_PATH = getenv("background-variants-db-path", "mongodb://background-variants-db-service/atlas-mtb")
+BACKGROUND_VARIANTS_DB_NAME = getenv("background-variants-db-name", "mtb")
 
 
 class VariantSearch:
@@ -36,6 +38,10 @@ class VariantSearch:
                 "mykrobe",
                 "variants",
                 "make-probes",
+                "--db_name",
+                BACKGROUND_VARIANTS_DB_NAME,
+                "--db_uri",
+                BACKGROUND_VARIANTS_DB_PATH,
                 "-k",
                 str(COBS_TERM_SIZE),
                 "-v",
