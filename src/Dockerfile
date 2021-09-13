@@ -1,19 +1,15 @@
 FROM debian:10-slim
 
-ARG MCCORTEX_VERSION='geno_kmer_count'
-
 RUN apt update
 RUN apt install -y --no-install-recommends python3-dev python3-pip git wget build-essential cmake zlib1g-dev
 RUN pip3 install -U pip setuptools wheel
 
 # Install Mykrobe for variant search
-WORKDIR /usr/src/app/
-RUN git clone --branch feature/background-db-path https://github.com/Mykrobe-tools/mykrobe.git mykrobe-predictor
-WORKDIR /usr/src/app/mykrobe-predictor
-RUN git clone --recursive -b ${MCCORTEX_VERSION} https://github.com/Mykrobe-tools/mccortex && cd mccortex && make
-WORKDIR /usr/src/app/mykrobe-predictor
-RUN pip3 install -r requirements.txt && python3 setup.py install
-RUN mykrobe panels update_metadata && mykrobe panels update_species all
+WORKDIR /usr/src
+RUN git clone https://github.com/Mykrobe-tools/mykrobe.git
+WORKDIR mykrobe
+RUN git checkout 6a7e7f69a56a05cce225889958a6ac8496a8f7cd
+RUN pip3 install . && mykrobe panels update_metadata && mykrobe panels update_species all
 
 # Install COBS
 WORKDIR /usr/src
