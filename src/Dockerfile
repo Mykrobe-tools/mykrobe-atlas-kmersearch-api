@@ -1,5 +1,7 @@
 FROM debian:10-slim
 
+ARG MCCORTEX_VERSION='geno_kmer_count'
+
 RUN apt update
 RUN apt install -y --no-install-recommends python3-dev python3-pip git wget build-essential cmake zlib1g-dev
 RUN pip3 install -U pip setuptools wheel
