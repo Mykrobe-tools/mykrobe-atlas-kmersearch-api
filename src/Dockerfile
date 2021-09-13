@@ -9,7 +9,7 @@ WORKDIR /usr/src
 RUN git clone https://github.com/Mykrobe-tools/mykrobe.git
 WORKDIR mykrobe
 RUN git checkout 6a7e7f69a56a05cce225889958a6ac8496a8f7cd
-RUN pip3 install . && mykrobe panels update_metadata && mykrobe panels update_species all
+RUN pip3 install requests && pip3 install . && mykrobe panels update_metadata && mykrobe panels update_species all
 
 # Install COBS
 WORKDIR /usr/src
