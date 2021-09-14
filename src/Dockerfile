@@ -31,6 +31,8 @@ RUN pip install .
 
 ENV COBS_FALSE_POSITIVE_RATE=0.3
 ENV DEBUG=0
+
+# Add pyvcf to Python search path to avoid import error
 ENV PYTHONPATH=/usr/local/lib/python3.7/dist-packages/vcf
 
 ENTRYPOINT ["python3"]
