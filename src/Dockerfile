@@ -31,5 +31,7 @@ RUN pip install .
 
 ENV COBS_FALSE_POSITIVE_RATE=0.3
 ENV DEBUG=0
+ENV PYTHONPATH=/usr/local/lib/python3.6/site-packages/vcf
 
-CMD ["PYTHONPATH=/usr/local/lib/python3.6/site-packages/vcf:$PYTHONPATH python3", "-m", "openapi_server"]
+ENTRYPOINT ["python3"]
+CMD ["-m", "openapi_server"]
