@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM debian:10-slim
 
 ARG MCCORTEX_VERSION='geno_kmer_count'
 
@@ -12,7 +12,7 @@ RUN git clone --branch feature/background-db-path https://github.com/Mykrobe-too
 WORKDIR /usr/src/mykrobe-predictor
 RUN git clone --recursive -b ${MCCORTEX_VERSION} https://github.com/Mykrobe-tools/mccortex && cd mccortex && make
 WORKDIR /usr/src/mykrobe-predictor
-RUN pip3 install -r requirements.txt && python3 setup.py install
+RUN python3 -m pip install -r requirements.txt && python3 setup.py install
 RUN mykrobe panels update_metadata && mykrobe panels update_species all
 
 # Install COBS
@@ -32,5 +32,5 @@ RUN pip install .
 ENV COBS_FALSE_POSITIVE_RATE=0.3
 ENV DEBUG=0
 
-ENTRYPOINT ["python3"]
+ENTRYPOINT ["PYTHONPATH=/usr/local/lib/python3.6/site-packages/vcf:$PYTHONPATH python3"]
 CMD ["-m", "openapi_server"]
