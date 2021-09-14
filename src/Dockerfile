@@ -1,16 +1,19 @@
 FROM debian:10-slim
 
+ARG MCCORTEX_VERSION='geno_kmer_count'
+
 RUN apt update
 RUN apt install -y --no-install-recommends python3-dev python3-pip git wget build-essential cmake zlib1g-dev
 RUN pip3 install -U pip setuptools wheel
 
 # Install Mykrobe for variant search
 WORKDIR /usr/src
-RUN git clone https://github.com/Mykrobe-tools/mykrobe.git
-WORKDIR mykrobe
-RUN git checkout cee6b8159eb313e98a95934cb662593698c76385
-RUN wget -O mykrobe-data.tar.gz https://bit.ly/2H9HKTU && tar -zxvf mykrobe-data.tar.gz && rm -fr src/mykrobe/data && mv mykrobe-data src/mykrobe/data
-RUN pip3 install .
+RUN git clone --branch feature/background-db-path https://github.com/Mykrobe-tools/mykrobe.git mykrobe-predictor
+WORKDIR /usr/src/mykrobe-predictor
+RUN git clone --recursive -b ${MCCORTEX_VERSION} https://github.com/Mykrobe-tools/mccortex && cd mccortex && make
+WORKDIR /usr/src/mykrobe-predictor
+RUN python3 -m pip install -r requirements.txt && python3 setup.py install
+RUN mykrobe panels update_metadata && mykrobe panels update_species all
 
 # Install COBS
 WORKDIR /usr/src
@@ -28,6 +31,9 @@ RUN pip install .
 
 ENV COBS_FALSE_POSITIVE_RATE=0.3
 ENV DEBUG=0
+
+# Add pyvcf to Python search path to avoid import error
+ENV PYTHONPATH=/usr/local/lib/python3.7/dist-packages/vcf
 
 ENTRYPOINT ["python3"]
 CMD ["-m", "openapi_server"]

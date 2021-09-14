@@ -4,7 +4,7 @@ import tempfile
 from pyfasta import Fasta
 
 from wrappers.cobs import COBS_TERM_SIZE
-from wrappers.variant_search import VariantSearch
+from wrappers.variant_search import VariantSearch, BACKGROUND_VARIANTS_DB_PATH, BACKGROUND_VARIANTS_DB_NAME
 
 
 class AminoAcidMutationSearch(VariantSearch):
@@ -19,6 +19,10 @@ class AminoAcidMutationSearch(VariantSearch):
                 "mykrobe",
                 "variants",
                 "make-probes",
+                "--db_name",
+                BACKGROUND_VARIANTS_DB_NAME,
+                "--db_uri",
+                BACKGROUND_VARIANTS_DB_PATH,
                 "-k",
                 str(COBS_TERM_SIZE),
                 "-v",
