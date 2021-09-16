@@ -33,11 +33,14 @@ def make_request(client):
 
 @fixture
 def search(make_request):
-    def _(seq, threshold, *args, **kwargs):
-        return make_request(f'/api/v1/search', 'POST', json={
-            'seq': seq,
-            'threshold': threshold,
-        }, *args, **kwargs)
+    def _(seq, threshold=None, *args, **kwargs):
+        json = {
+            'seq': seq
+        }
+        if threshold is not None:
+            json['threshold'] = threshold
+
+        return make_request(f'/api/v1/search', 'POST', json=json, *args, **kwargs)
 
     return _
 

@@ -76,6 +76,9 @@ components:
           type: string
         threshold:
           type: number
+      required:
+      - seq
+      - threshold
       type: object
     VariantSearchQuery:
       example:

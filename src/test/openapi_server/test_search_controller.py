@@ -20,7 +20,7 @@ def test_search_response(seq, threshold, mock_search_results, search, monkeypatc
     monkeypatch.setattr('openapi_server.controllers.search_controller.get_cobs', lambda: CobsMock(mock_search_results))
 
     response = search(seq, threshold)
-    assert response.status_code == 200
+    assert response.status_code == 200, response.data
 
     results = SearchResults.from_dict(response.json)
     assert results.query == seq
@@ -39,6 +39,26 @@ def test_invalid_seq_lengths(seq, threshold, search, monkeypatch):
 
     response = search(seq, threshold)
     assert response.status_code == 400
+
+
+def test_missing_threshold(search):
+    @given(seq=seqs())
+    def _(seq):
+        response = search(seq)
+        assert response.status_code == 400
+
+    _()
+
+
+def test_internal_server_errors(search, monkeypatch):
+    monkeypatch.setattr('openapi_server.controllers.search_controller.get_cobs', ValueError)
+
+    @given(seq=seqs(), threshold=thresholds())
+    def _(seq, threshold):
+        response = search(seq, threshold)
+        assert response.status_code == 500
+
+    _()
 
 
 @integration_test

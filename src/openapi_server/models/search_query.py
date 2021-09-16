@@ -65,6 +65,8 @@ class SearchQuery(Model):
         :param seq: The seq of this SearchQuery.
         :type seq: str
         """
+        if seq is None:
+            raise ValueError("Invalid value for `seq`, must not be `None`")  # noqa: E501
         if seq is not None and len(seq) < 31:
             raise ValueError("Invalid value for `seq`, length must be greater than or equal to `31`")  # noqa: E501
 
@@ -88,5 +90,7 @@ class SearchQuery(Model):
         :param threshold: The threshold of this SearchQuery.
         :type threshold: float
         """
+        if threshold is None:
+            raise ValueError("Invalid value for `threshold`, must not be `None`")  # noqa: E501
 
         self._threshold = threshold
