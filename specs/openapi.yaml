@@ -68,6 +68,9 @@ components:
           minLength: 31
         threshold:
           type: number
+      required:
+        - seq
+        - threshold
     VariantSearchQuery:
       type: object
       properties:
